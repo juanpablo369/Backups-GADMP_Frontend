@@ -1,42 +1,197 @@
+/* 1. Limpiamos el Body y el Root */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f3f4f6;
+}
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  width: 100%;
+  /* Eliminamos el flex aquí por si acaso choca con otros estilos */
+}
+
+/* 2. Centrado Infalible para el Container */
+.container {
+  margin-left: auto;   /* Margen automático a la izquierda */
+  margin-right: auto;  /* Margen automático a la derecha */
+  margin-top: 50px;    /* Espacio arriba */
+  margin-bottom: 50px; /* Espacio abajo */
+  
+  width: 90%;          /* Ocupa el 90% del ancho */
+  max-width: 1000px;   /* Pero no más de 1000px */
+  
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box; /* Asegura que el padding no agrande el ancho */
+}
+
+/* 4. Título */
+h1 {
   text-align: center;
+  color: #111827;
+  margin-top: 0;
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 700;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* 5. Acordeón Mejorado */
+.accordion {
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.accordion-header {
+  background: #1f2937;
+  color: #ffffff;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.accordion-header:hover {
+  background: #374151;
 }
 
-.card {
-  padding: 2em;
+.arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  font-size: 18px;
 }
 
-.read-the-docs {
-  color: #888;
+.arrow.open {
+  transform: rotate(180deg);
+}
+
+/* 6. Cuerpo del acordeón y Tablas */
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #ffffff;
+}
+
+.accordion-body.show {
+  max-height: 2000px; /* Suficiente para tablas largas */
+  overflow-x: auto;   /* Permite scroll horizontal en tablas si la pantalla es chica */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px; /* Evita que la tabla se comprima demasiado */
+}
+
+thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: #4b5563;
+}
+
+td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.file-name {
+  font-weight: 500;
+  color: #2563eb;
+}
+
+tr:hover {
+  background-color: #f9fafb;
+}
+.file-name {
+  font-weight: 500;
+  color: #2563eb;
+  word-break: break-all;
+}
+
+.empty {
+  margin-top: 20px;
+  text-align: center;
+  color: #6b7280;
+}
+
+
+
+
+
+
+
+
+
+
+
+.accordion {
+  margin-bottom: 14px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.accordion-header {
+  background: #1f2937;
+  color: #ffffff;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.accordion-header:hover {
+  background: #111827;
+}
+
+.arrow {
+  transition: transform 0.3s ease;
+}
+
+.arrow.open {
+  transform: rotate(180deg);
+}
+
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  background: #ffffff;
+}
+
+.accordion-body.show {
+  max-height: 1000px;
+}
+
+.accordion table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.accordion th,
+.accordion td {
+  padding: 12px 16px;
+}
+
+.accordion tbody tr:hover {
+  background: #f9fafb;
 }
