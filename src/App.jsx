@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import Select from 'react-select';
-import { Download, Link as LinkIcon, Check } from 'lucide-react';
+import { Download, Link as LinkIcon, Check, Sun, Moon } from 'lucide-react';
 import './App.css';
 
 function App() {
@@ -10,6 +10,7 @@ function App() {
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
   const [copiedKey, setCopiedKey] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/backups`)
@@ -54,13 +55,11 @@ function App() {
   const handleCopyLink = async (key) => {
     const url = await getDownloadLink(key);
     if (url) {
-      // 1. Intentar el método moderno (Solo funciona en HTTPS)
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(url);
         setCopiedKey(key);
         setTimeout(() => setCopiedKey(null), 2000);
       } else {
-        // 2. Método de respaldo (Fallback) para HTTP/IP Directa
         const textArea = document.createElement("textarea");
         textArea.value = url;
         document.body.appendChild(textArea);
@@ -69,9 +68,7 @@ function App() {
           document.execCommand('copy');
           setCopiedKey(key);
           setTimeout(() => setCopiedKey(null), 2000);
-        } catch (err) {
-          console.error('No se pudo copiar el link', err);
-        }
+        } catch (err) { console.error(err); }
         document.body.removeChild(textArea);
       }
     }
@@ -84,10 +81,7 @@ function App() {
       sortable: true,
       grow: 2,
       cell: row => (
-        <span
-          onClick={() => handleDownload(row.name)}
-          className="file-link"
-        >
+        <span onClick={() => handleDownload(row.name)} className="file-link">
           {row.shortName}
         </span>
       ),
@@ -110,18 +104,10 @@ function App() {
       width: '120px',
       cell: row => (
         <div className="action-buttons">
-          <button
-            className="icon-btn download"
-            onClick={() => handleDownload(row.name)}
-            title="Descargar"
-          >
+          <button className="icon-btn download" onClick={() => handleDownload(row.name)} title="Descargar">
             <Download size={20} />
           </button>
-          <button
-            className="icon-btn link"
-            onClick={() => handleCopyLink(row.name)}
-            title="Copiar enlace"
-          >
+          <button className="icon-btn link" onClick={() => handleCopyLink(row.name)} title="Copiar enlace">
             {copiedKey === row.name ? <Check size={20} color="#28a745" /> : <LinkIcon size={20} />}
           </button>
         </div>
@@ -130,39 +116,69 @@ function App() {
   ];
 
   const customSelectStyles = {
-    option: (provided) => ({ ...provided, color: '#333333' }),
-    singleValue: (provided) => ({ ...provided, color: '#333333' }),
-    control: (provided) => ({ ...provided, color: '#333333' })
+    control: (base) => ({
+      ...base,
+      backgroundColor: darkMode ? '#374151' : '#fff',
+      borderColor: darkMode ? '#4b5563' : '#e5e7eb',
+      color: darkMode ? '#fff' : '#333'
+    }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: darkMode ? '#374151' : '#fff',
+      zIndex: 9999
+    }),
+    option: (base, { isFocused }) => ({
+      ...base,
+      backgroundColor: isFocused ? (darkMode ? '#4b5563' : '#f3f4f6') : 'transparent',
+      color: darkMode ? '#fff' : '#333'
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: darkMode ? '#fff' : '#333'
+    }),
+    input: (base) => ({ ...base, color: darkMode ? '#fff' : '#333' }),
+    placeholder: (base) => ({ ...base, color: darkMode ? '#9ca3af' : '#6b7280' })
   };
 
   return (
-    <div className="container">
-      <h1>Gestor de Backups GADMP</h1>
+    <div className={`app-wrapper ${darkMode ? 'dark' : ''}`}>
+      {/* NAVBAR AGREGADO */}
+      <nav className="navbar">
+        <div className="nav-container">
+          <span className="nav-title">SISTEMA DE BACKUPS GADMP</span>
+          <button className="theme-toggle-btn" onClick={() => setDarkMode(!darkMode)}>
+            {darkMode ? <Sun size={20} color="#fbbf24" /> : <Moon size={20} color="#4b5563" />}
+            <span>{darkMode ? 'Modo Claro' : 'Modo Oscuro'}</span>
+          </button>
+        </div>
+      </nav>
 
-      <div className="selector-container">
-        <label>Seleccione una Carpeta:</label>
-        <Select
-          options={options}
-          onChange={setSelectedFolder}
-          placeholder="Buscar carpeta..."
-          isClearable
-          styles={customSelectStyles}
-        />
-      </div>
-
-      <div className="table-container">
-        {selectedFolder ? (
-          <DataTable
-            columns={columns}
-            data={filteredData}
-            pagination
-            highlightOnHover
-            responsive
-            noDataComponent="No hay archivos en esta carpeta"
+      <div className="container">
+        <div className="selector-container">
+          <label className="label-select">Seleccione una Carpeta:</label>
+          <Select
+            options={options}
+            onChange={setSelectedFolder}
+            placeholder="Buscar carpeta..."
+            isClearable
+            styles={customSelectStyles}
           />
-        ) : (
-          <div className="welcome-msg">Seleccione una carpeta para visualizar los backups.</div>
-        )}
+        </div>
+
+        <div className="table-container">
+          {selectedFolder ? (
+            <DataTable
+              columns={columns}
+              data={filteredData}
+              pagination
+              highlightOnHover
+              theme={darkMode ? 'dark' : 'default'}
+              noDataComponent={<div className="empty-msg">No hay archivos en esta carpeta</div>}
+            />
+          ) : (
+            <div className="welcome-msg">Seleccione una carpeta para visualizar los backups.</div>
+          )}
+        </div>
       </div>
     </div>
   );

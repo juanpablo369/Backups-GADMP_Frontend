@@ -1,223 +1,165 @@
-/* 1. Limpiamos el Body y el Root */
-body, html {
+/* 1. VARIABLES UNIFICADAS */
+:root {
+  --bg-body: #f3f4f6;
+  --bg-card: #ffffff;
+  --text-main: #111827;
+  --text-label: #000000;
+  --border: #e2e8f0;
+  --accent: #3b82f6;
+}
+
+.dark {
+  --bg-body: #020617;
+  --bg-card: #0f172a;
+  --text-main: #f1f5f9;
+  --text-label: #ffffff;
+  --border: #1e293b;
+  --accent: #3b82f6;
+}
+
+/* 2. RESET TOTAL */
+html, body, #root {
   margin: 0;
   padding: 0;
   width: 100%;
   min-height: 100vh;
-  background-color: #f3f4f6;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-#root {
+/* 3. NAVBAR FIJA (Sin espacios) */
+.navbar {
   width: 100%;
-  /* Eliminamos el flex aquí por si acaso choca con otros estilos */
+  height: 64px;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  z-index: 2000;
+  transition: background-color 0.3s;
 }
 
-/* 2. Centrado Infalible para el Container */
-.container {
-  margin-left: auto;   /* Margen automático a la izquierda */
-  margin-right: auto;  /* Margen automático a la derecha */
-  margin-top: 50px;    /* Espacio arriba */
-  margin-bottom: 50px; /* Espacio abajo */
-  
-  width: 90%;          /* Ocupa el 90% del ancho */
-  max-width: 1000px;   /* Pero no más de 1000px */
-  
-  background: #ffffff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box; /* Asegura que el padding no agrande el ancho */
-}
-
-/* 4. Título */
-h1 {
-  text-align: center;
-  color: #111827;
-  margin-top: 0;
-  margin-bottom: 30px;
-  font-size: 28px;
-  font-weight: 700;
-}
-
-/* 5. Acordeón Mejorado */
-.accordion {
-  margin-bottom: 12px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  overflow: hidden;
-}
-
-.accordion-header {
-  background: #1f2937;
-  color: #ffffff;
-  padding: 15px 20px;
+.nav-container {
+  width: 100%;
+  padding: 0 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
-  transition: background 0.3s;
 }
 
-.accordion-header:hover {
-  background: #374151;
-}
-
-.arrow {
-  display: inline-block;
-  transition: transform 0.3s ease;
-  font-size: 18px;
-}
-
-.arrow.open {
-  transform: rotate(180deg);
-}
-
-/* 6. Cuerpo del acordeón y Tablas */
-.accordion-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #ffffff;
-}
-
-.accordion-body.show {
-  max-height: 2000px; /* Suficiente para tablas largas */
-  overflow-x: auto;   /* Permite scroll horizontal en tablas si la pantalla es chica */
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 600px; /* Evita que la tabla se comprima demasiado */
-}
-
-thead {
-  background: #f9fafb;
-  border-bottom: 2px solid #e5e7eb;
-}
-
-th {
-  text-align: left;
-  padding: 12px 16px;
-  font-size: 13px;
+.nav-title {
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--text-main);
   text-transform: uppercase;
-  color: #4b5563;
+  letter-spacing: -0.5px;
 }
 
-td {
-  padding: 14px 16px;
-  border-bottom: 1px solid #f3f4f6;
-  font-size: 14px;
-  color: #1f2937;
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--bg-body);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-main);
+  font-weight: 600;
+  transition: all 0.2s;
 }
 
-.file-name {
-  font-weight: 500;
-  color: #2563eb;
+.theme-toggle-btn:hover {
+  filter: brightness(0.9);
 }
 
-tr:hover {
-  background-color: #f9fafb;
+/* 4. CONTENEDOR PRINCIPAL (Full Width) */
+.app-wrapper {
+  background-color: var(--bg-body);
+  min-height: 100vh;
+  width: 100%;
+  padding-top: 64px; /* Espacio para que el contenido no quede bajo la navbar */
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s;
 }
-.file-name {
-  font-weight: 500;
-  color: #2563eb;
-  word-break: break-all;
-}
-
-.empty {
-  margin-top: 20px;
-  text-align: center;
-  color: #6b7280;
-}
-
-
-
-
-
-
-
 
 .container {
-  max-width: 1000px;
-  margin: 40px auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
+  width: 60%;
+  margin: 0 auto;      /* Centra horizontalmente: 0 arriba/abajo, auto a los lados */
+  padding: 30px 40px;
+  box-sizing: border-box;
 }
 
+/* 5. SELECTOR Y TABLA */
 .selector-container {
-  margin-bottom: 30px;
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: var(--bg-card);
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-bottom: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.selector-container label {
+.label-select {
   display: block;
   margin-bottom: 10px;
   font-weight: bold;
+  color: var(--text-label);
 }
 
-.welcome-msg {
-  text-align: center;
-  padding: 50px;
-  color: #666;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
+.table-container {
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.btn-download {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 5px;
+/* 6. ELEMENTOS INTERNOS */
+.file-link {
+  color: var(--accent);
   cursor: pointer;
+  font-weight: 600;
 }
 
-
-
+.file-link:hover {
+  text-decoration: underline;
+}
 
 .action-buttons {
   display: flex;
-  gap: 10px;
-  align-items: center;
+  gap: 12px;
 }
 
 .icon-btn {
   background: none;
-  border: none;
+  border: 1px solid var(--border);
   cursor: pointer;
   padding: 8px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-  color: #4b5563;
+  border-radius: 8px;
+  color: #94a3b8;
+  transition: all 0.2s;
 }
 
 .icon-btn:hover {
-  background-color: #f3f4f6;
+  background-color: var(--bg-body);
+  transform: translateY(-1px);
 }
 
-.icon-btn.download:hover {
-  color: #28a745; /* Verde al descargar */
+.icon-btn.download:hover { color: #10b981; border-color: #10b981; }
+.icon-btn.link:hover { color: var(--accent); border-color: var(--accent); }
+
+.welcome-msg, .empty-msg {
+  text-align: center;
+  padding: 80px 20px;
+  color: #94a3b8;
 }
 
-.icon-btn.link:hover {
-  color: #2563eb; /* Azul al copiar link */
-}
-
-/* Tooltip básico para el botón */
-.icon-btn[title]:hover::after {
-  content: attr(title);
-  position: absolute;
-  background: #333;
-  color: #fff;
-  padding: 4px 8px;
-  font-size: 11px;
-  border-radius: 4px;
-  margin-top: -60px;
-}
+/* 7. DATATABLE OVERRIDES */
+.rdt_Table { background-color: transparent !important; color: var(--text-main) !important; }
+.rdt_TableRow { background-color: transparent !important; color: var(--text-main) !important; border-bottom: 1px solid var(--border) !important; }
+.rdt_TableHeadRow { background-color: var(--bg-body) !important; color: var(--text-main) !important; border-bottom: 2px solid var(--border) !important; }
+.rdt_Pagination { background-color: transparent !important; color: var(--text-main) !important; border-top: 1px solid var(--border) !important; }
