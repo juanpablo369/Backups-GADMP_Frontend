@@ -54,9 +54,26 @@ function App() {
   const handleCopyLink = async (key) => {
     const url = await getDownloadLink(key);
     if (url) {
-      await navigator.clipboard.writeText(url);
-      setCopiedKey(key);
-      setTimeout(() => setCopiedKey(null), 2000);
+      // 1. Intentar el método moderno (Solo funciona en HTTPS)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+        setCopiedKey(key);
+        setTimeout(() => setCopiedKey(null), 2000);
+      } else {
+        // 2. Método de respaldo (Fallback) para HTTP/IP Directa
+        const textArea = document.createElement("textarea");
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          setCopiedKey(key);
+          setTimeout(() => setCopiedKey(null), 2000);
+        } catch (err) {
+          console.error('No se pudo copiar el link', err);
+        }
+        document.body.removeChild(textArea);
+      }
     }
   };
 
@@ -67,8 +84,8 @@ function App() {
       sortable: true,
       grow: 2,
       cell: row => (
-        <span 
-          onClick={() => handleDownload(row.name)} 
+        <span
+          onClick={() => handleDownload(row.name)}
           className="file-link"
         >
           {row.shortName}
@@ -93,15 +110,15 @@ function App() {
       width: '120px',
       cell: row => (
         <div className="action-buttons">
-          <button 
-            className="icon-btn download" 
+          <button
+            className="icon-btn download"
             onClick={() => handleDownload(row.name)}
             title="Descargar"
           >
             <Download size={20} />
           </button>
-          <button 
-            className="icon-btn link" 
+          <button
+            className="icon-btn link"
             onClick={() => handleCopyLink(row.name)}
             title="Copiar enlace"
           >
@@ -121,7 +138,7 @@ function App() {
   return (
     <div className="container">
       <h1>Gestor de Backups GADMP</h1>
-      
+
       <div className="selector-container">
         <label>Seleccione una Carpeta:</label>
         <Select
