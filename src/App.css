@@ -138,60 +138,40 @@ tr:hover {
 
 
 
-
-
-
-.accordion {
-  margin-bottom: 14px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid #e5e7eb;
+.container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
 }
 
-.accordion-header {
-  background: #1f2937;
-  color: #ffffff;
-  padding: 14px 18px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.selector-container {
+  margin-bottom: 30px;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.selector-container label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.welcome-msg {
+  text-align: center;
+  padding: 50px;
+  color: #666;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+}
+
+.btn-download {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
   cursor: pointer;
-  font-weight: 600;
-}
-
-.accordion-header:hover {
-  background: #111827;
-}
-
-.arrow {
-  transition: transform 0.3s ease;
-}
-
-.arrow.open {
-  transform: rotate(180deg);
-}
-
-.accordion-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.35s ease;
-  background: #ffffff;
-}
-
-.accordion-body.show {
-  max-height: 1000px;
-}
-
-.accordion table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.accordion th,
-.accordion td {
-  padding: 12px 16px;
-}
-
-.accordion tbody tr:hover {
-  background: #f9fafb;
 }
