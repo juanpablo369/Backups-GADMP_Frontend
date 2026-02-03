@@ -1,28 +1,28 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import Select from 'react-select';
+import { Download, Link as LinkIcon, Check } from 'lucide-react';
 import './App.css';
 
 function App() {
-  const [allFiles, setAllFiles] = useState([]); // Todos los archivos planos
-  const [options, setOptions] = useState([]);   // Opciones para el Select
+  const [allFiles, setAllFiles] = useState([]);
+  const [options, setOptions] = useState([]);
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
+  const [copiedKey, setCopiedKey] = useState(null);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/backups`)
       .then(res => res.json())
       .then(data => {
         setAllFiles(data);
-
-        // Extraer carpetas únicas para el Select
         const folders = [...new Set(data.map(item => item.name.split('/')[2]))];
         const selectOptions = folders.map(f => ({ value: f, label: f }));
         setOptions(selectOptions);
-      });
+      })
+      .catch(err => console.error("Error al cargar datos:", err));
   }, []);
 
-  // Filtrar datos cuando cambie la selección
   useEffect(() => {
     if (selectedFolder) {
       const filtered = allFiles
@@ -35,26 +35,41 @@ function App() {
     }
   }, [selectedFolder, allFiles]);
 
-  const handleDownload = async (key) => {
+  const getDownloadLink = async (key) => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/download?key=${encodeURIComponent(key)}`);
       const data = await response.json();
-      if (data.downloadUrl) window.open(data.downloadUrl, '_blank');
+      return data.downloadUrl;
     } catch (error) {
       alert("Error al conectar con el servidor");
+      return null;
     }
   };
 
-  // Definición de columnas para la DataTable
+  const handleDownload = async (key) => {
+    const url = await getDownloadLink(key);
+    if (url) window.open(url, '_blank');
+  };
+
+  const handleCopyLink = async (key) => {
+    const url = await getDownloadLink(key);
+    if (url) {
+      await navigator.clipboard.writeText(url);
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(null), 2000);
+    }
+  };
+
   const columns = [
     {
       name: 'Archivo',
       selector: row => row.shortName,
       sortable: true,
+      grow: 2,
       cell: row => (
         <span 
           onClick={() => handleDownload(row.name)} 
-          style={{ color: '#007bff', cursor: 'pointer', fontWeight: 'bold' }}
+          className="file-link"
         >
           {row.shortName}
         </span>
@@ -64,44 +79,44 @@ function App() {
       name: 'Tamaño (MB)',
       selector: row => parseFloat(row.sizeMB),
       sortable: true,
-      width: '150px'
+      width: '130px'
     },
     {
       name: 'Fecha',
       selector: row => row.lastModified,
       sortable: true,
+      width: '200px',
       format: row => new Date(row.lastModified).toLocaleString(),
     },
     {
-      name: 'Acción',
+      name: 'Acciones',
+      width: '120px',
       cell: row => (
-        <button className="btn-download" onClick={() => handleDownload(row.name)}>
-          Descargar
-        </button>
+        <div className="action-buttons">
+          <button 
+            className="icon-btn download" 
+            onClick={() => handleDownload(row.name)}
+            title="Descargar"
+          >
+            <Download size={20} />
+          </button>
+          <button 
+            className="icon-btn link" 
+            onClick={() => handleCopyLink(row.name)}
+            title="Copiar enlace"
+          >
+            {copiedKey === row.name ? <Check size={20} color="#28a745" /> : <LinkIcon size={20} />}
+          </button>
+        </div>
       ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
     },
   ];
 
-  // Define este objeto fuera del componente App o antes del return
-const customSelectStyles = {
-  option: (provided) => ({
-    ...provided,
-    color: '#333333', // Texto de las opciones en gris oscuro
-  }),
-  singleValue: (provided) => ({
-    ...provided,
-    color: '#333333', // Texto de la opción seleccionada
-  }),
-  control: (provided) => ({
-    ...provided,
-    color: '#333333',
-  })
-};
-
- 
+  const customSelectStyles = {
+    option: (provided) => ({ ...provided, color: '#333333' }),
+    singleValue: (provided) => ({ ...provided, color: '#333333' }),
+    control: (provided) => ({ ...provided, color: '#333333' })
+  };
 
   return (
     <div className="container">
@@ -129,13 +144,11 @@ const customSelectStyles = {
             noDataComponent="No hay archivos en esta carpeta"
           />
         ) : (
-          <div className="welcome-msg">Por favor, seleccione una carpeta para ver los archivos.</div>
+          <div className="welcome-msg">Seleccione una carpeta para visualizar los backups.</div>
         )}
       </div>
     </div>
   );
 }
-
-
 
 export default App;
