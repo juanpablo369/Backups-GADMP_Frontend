@@ -46,6 +46,15 @@ function App() {
     }
   };
 
+// --- LÓGICA DE LOGOUT ---
+  const handleLogout = () => {
+  localStorage.removeItem('userToken'); // Borra el token del navegador
+  setToken(null);
+  setIsAuthenticated(false);
+  setAllFiles([]); // Limpia los datos por seguridad
+  setSelectedFolder(null);
+};
+
   // --- CARGA DE DATOS PROTEGIDA ---
   useEffect(() => {
     if (token) {
@@ -161,15 +170,25 @@ function App() {
       )}
 
       {/* 2. NAVBAR */}
-      <nav className="navbar">
-        <div className="nav-container">
-          <span className="nav-title">SISTEMA DE BACKUPS GADMP</span>
-          <button className="theme-toggle-btn" onClick={() => setDarkMode(!darkMode)}>
-            {darkMode ? <Sun size={20} color="#fbbf24" /> : <Moon size={20} color="#4b5563" />}
-            <span>{darkMode ? 'Modo Claro' : 'Modo Oscuro'}</span>
-          </button>
-        </div>
-      </nav>
+<nav className="navbar">
+  <div className="nav-container">
+    <span className="nav-title">SISTEMA DE BACKUPS GADMP</span>
+    
+    <div className="nav-actions">
+      <button className="theme-toggle-btn" onClick={() => setDarkMode(!darkMode)}>
+        {darkMode ? <Sun size={20} color="#fbbf24" /> : <Moon size={20} color="#4b5563" />}
+        {/* <span>{darkMode ? '' : ''}</span> */}
+      </button>
+
+      {/* Solo mostramos cerrar sesión si está autenticado */}
+      {isAuthenticated && (
+        <button className="logout-btn" onClick={handleLogout}>
+          Cerrar Sesión
+        </button>
+      )}
+    </div>
+  </div>
+</nav>
 
       {/* 3. CONTENIDO PRINCIPAL */}
       <div className="container">
