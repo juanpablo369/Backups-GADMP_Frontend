@@ -15,6 +15,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('userToken'));
   const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [isLoading, setIsLoading] = useState(true);
 
   // --- DARK MODE ---
   const [darkMode, setDarkMode] = useState(() => {
@@ -56,29 +57,35 @@ function App() {
 };
 
   // --- CARGA DE DATOS PROTEGIDA ---
-  useEffect(() => {
-    if (token) {
-      fetch(`${import.meta.env.VITE_API_URL}/backups`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      .then(res => {
-        if (res.status === 401 || res.status === 403) {
-          setIsAuthenticated(false);
-          localStorage.removeItem('userToken');
-          return [];
-        }
-        setIsAuthenticated(true);
-        return res.json();
-      })
-      .then(data => {
-        setAllFiles(data);
-        const folders = [...new Set(data.map(item => item.name.split('/')[2]))];
-        const selectOptions = folders.map(f => ({ value: f, label: f }));
-        setOptions(selectOptions);
-      })
-      .catch(err => console.error("Error cargando archivos:", err));
-    }
-  }, [token]);
+useEffect(() => {
+  if (token) {
+    setIsLoading(true);
+    fetch(`${import.meta.env.VITE_API_URL}/backups`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(res => {
+      if (res.status === 401 || res.status === 403) {
+        setIsAuthenticated(false);
+        localStorage.removeItem('userToken');
+        return [];
+      }
+      setIsAuthenticated(true);
+      return res.json();
+    })
+    .then(data => {
+      setAllFiles(data);
+      const folders = [...new Set(data.map(item => item.name.split('/')[2]))];
+      setOptions(folders.map(f => ({ value: f, label: f })));
+    })
+    .catch(err => console.error("Error:", err))
+    .finally(() => setIsLoading(false)); // Aquí se cierra todo correctamente
+  } else {
+    setIsLoading(false);
+  }
+}, [token]);
+
+
+
 
   // --- FILTRADO DE CARPETAS ---
   useEffect(() => {
@@ -143,11 +150,10 @@ function App() {
     menu: (base) => ({ ...base, backgroundColor: darkMode ? '#1f2937' : '#fff', zIndex: 9999 }),
     option: (base, { isFocused }) => ({ ...base, backgroundColor: isFocused ? (darkMode ? '#374151' : '#f3f4f6') : 'transparent', color: darkMode ? '#fff' : '#333' }),
     singleValue: (base) => ({ ...base, color: darkMode ? '#fff' : '#333' }),
-  };
-return (
+  };return (
   <div className={`app-wrapper ${darkMode ? 'dark' : ''}`}>
     
-    {/* 1. NAVBAR (Fuera del blur para que siempre esté nítido) */}
+    {/* 1. NAVBAR (Siempre visible) */}
     <nav className="navbar">
       <div className="nav-container">
         <span className="nav-title">SISTEMA DE BACKUPS GADMP</span>
@@ -164,57 +170,66 @@ return (
       </div>
     </nav>
 
-    {/* 2. MODAL DE BLOQUEO */}
-    {!isAuthenticated && (
-      <div className="modal-overlay">
-        <div className="login-card">
-          <h2>Acceso Restringido</h2>
-          <p>Inicie sesión para gestionar los backups.</p>
-          <input 
-            type="text" 
-            placeholder="Usuario" 
-            onChange={(e) => setCredentials({...credentials, username: e.target.value})}
-          />
-          <input 
-            type="password" 
-            placeholder="Contraseña" 
-            onChange={(e) => setCredentials({...credentials, password: e.target.value})}
-          />
-          <button className="login-btn" onClick={handleLogin}>Entrar</button>
-        </div>
+    {/* CONTROL DE CARGA PARA EVITAR PARPADEO */}
+    {isLoading ? (
+      <div className="loading-screen">
+        <div className="spinner"></div>
       </div>
+    ) : (
+      <>
+        {/* 2. MODAL DE BLOQUEO (Solo si no está autenticado) */}
+        {!isAuthenticated && (
+          <div className="modal-overlay">
+            <div className="login-card">
+              <h2>Acceso Restringido</h2>
+              <p>Inicie sesión para gestionar los backups.</p>
+              <input 
+                type="text" 
+                placeholder="Usuario" 
+                onChange={(e) => setCredentials({...credentials, username: e.target.value})}
+              />
+              <input 
+                type="password" 
+                placeholder="Contraseña" 
+                onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+              />
+              <button className="login-btn" onClick={handleLogin}>Entrar</button>
+            </div>
+          </div>
+        )}
+
+        {/* 3. CONTENIDO PRINCIPAL (Con Blur si no hay sesión) */}
+        <div className={`main-content ${!isAuthenticated ? 'blur-active' : ''}`}>
+          <div className="container">
+            <div className="selector-container">
+              <label className="label-select">Seleccione una Carpeta:</label>
+              <Select
+                options={options}
+                onChange={setSelectedFolder}
+                placeholder="Buscar carpeta..."
+                isClearable
+                styles={customSelectStyles}
+              />
+            </div>
+
+            <div className="table-container">
+              {selectedFolder ? (
+                <DataTable
+                  columns={columns}
+                  data={filteredData}
+                  pagination
+                  highlightOnHover
+                  theme={darkMode ? 'dark' : 'default'}
+                  noDataComponent={<div className="empty-msg">No hay archivos en esta carpeta</div>}
+                />
+              ) : (
+                <div className="welcome-msg">Seleccione una carpeta para visualizar los backups.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </>
     )}
-
-    {/* 3. CONTENIDO CON BLUR CONDICIONAL */}
-    <div className={`main-content ${!isAuthenticated ? 'blur-active' : ''}`}>
-      <div className="container">
-        <div className="selector-container">
-          <label className="label-select">Seleccione una Carpeta:</label>
-          <Select
-            options={options}
-            onChange={setSelectedFolder}
-            placeholder="Buscar carpeta..."
-            isClearable
-            styles={customSelectStyles}
-          />
-        </div>
-
-        <div className="table-container">
-          {selectedFolder ? (
-            <DataTable
-              columns={columns}
-              data={filteredData}
-              pagination
-              highlightOnHover
-              theme={darkMode ? 'dark' : 'default'}
-              noDataComponent={<div className="empty-msg">No hay archivos en esta carpeta</div>}
-            />
-          ) : (
-            <div className="welcome-msg">Seleccione una carpeta para visualizar los backups.</div>
-          )}
-        </div>
-      </div>
-    </div>
   </div>
 );
 }
