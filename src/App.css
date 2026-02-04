@@ -8,6 +8,47 @@
   --accent: #3b82f6;
 }
 
+
+
+
+
+
+
+
+
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
+  backdrop-filter: blur(10px);    /* ESTO HACE EL DESENFOQUE */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000; /* Por encima del Navbar */
+}
+
+.login-card {
+  background: var(--bg-card);
+  padding: 40px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  text-align: center;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+
+
+
+
+
+
+
+
+
 .dark {
   --bg-body: #020617;
   --bg-card: #0f172a;
@@ -87,11 +128,35 @@ html, body, #root {
 }
 
 .container {
-  width: 60%;
-  margin: 0 auto;      /* Centra horizontalmente: 0 arriba/abajo, auto a los lados */
+  /* En pantallas pequeñas ocupa casi todo (95%) */
+  width: 100%; 
+  
+  /* En pantallas gigantes, nunca pasará de este ancho (puedes ajustarlo) */
+  max-width: 1662px; 
+  
+  margin: 0 auto;
   padding: 30px 40px;
   box-sizing: border-box;
+  transition: width 0.3s ease;
 }
+
+/* Si quieres que en pantallas "medianas" (laptops)  
+*/
+@media (min-width: 1024px) {
+  .container {
+    width: 90%;
+  }
+}
+
+/* En pantallas muy grandes (Monitores Pro)  
+*/
+@media (min-width: 1600px) {
+  .container {
+    width: 90%;
+  }
+}
+
+
 
 /* 5. SELECTOR Y TABLA */
 .selector-container {

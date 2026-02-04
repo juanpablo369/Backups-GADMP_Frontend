@@ -10,20 +10,68 @@ function App() {
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
   const [copiedKey, setCopiedKey] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
+
+  // --- ESTADOS DE AUTENTICACIÓN ---
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState(localStorage.getItem('userToken'));
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
+
+  // --- DARK MODE ---
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/backups`)
-      .then(res => res.json())
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
+
+  // --- LÓGICA DE LOGIN ---
+  const handleLogin = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials)
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem('userToken', data.token);
+        setToken(data.token);
+        setIsAuthenticated(true);
+      } else {
+        alert("Usuario o clave incorrecta");
+      }
+    } catch (err) {
+      alert("Error al conectar con el servidor de login");
+    }
+  };
+
+  // --- CARGA DE DATOS PROTEGIDA ---
+  useEffect(() => {
+    if (token) {
+      fetch(`${import.meta.env.VITE_API_URL}/backups`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(res => {
+        if (res.status === 401 || res.status === 403) {
+          setIsAuthenticated(false);
+          localStorage.removeItem('userToken');
+          return [];
+        }
+        setIsAuthenticated(true);
+        return res.json();
+      })
       .then(data => {
         setAllFiles(data);
         const folders = [...new Set(data.map(item => item.name.split('/')[2]))];
         const selectOptions = folders.map(f => ({ value: f, label: f }));
         setOptions(selectOptions);
       })
-      .catch(err => console.error("Error al cargar datos:", err));
-  }, []);
+      .catch(err => console.error("Error cargando archivos:", err));
+    }
+  }, [token]);
 
+  // --- FILTRADO DE CARPETAS ---
   useEffect(() => {
     if (selectedFolder) {
       const filtered = allFiles
@@ -36,13 +84,15 @@ function App() {
     }
   }, [selectedFolder, allFiles]);
 
+  // --- FUNCIONES DE DESCARGA Y COPIA ---
   const getDownloadLink = async (key) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/download?key=${encodeURIComponent(key)}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/download?key=${encodeURIComponent(key)}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const data = await response.json();
       return data.downloadUrl;
     } catch (error) {
-      alert("Error al conectar con el servidor");
       return null;
     }
   };
@@ -55,94 +105,62 @@ function App() {
   const handleCopyLink = async (key) => {
     const url = await getDownloadLink(key);
     if (url) {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(url);
-        setCopiedKey(key);
-        setTimeout(() => setCopiedKey(null), 2000);
-      } else {
-        const textArea = document.createElement("textarea");
-        textArea.value = url;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-          document.execCommand('copy');
-          setCopiedKey(key);
-          setTimeout(() => setCopiedKey(null), 2000);
-        } catch (err) { console.error(err); }
-        document.body.removeChild(textArea);
-      }
+      await navigator.clipboard.writeText(url);
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(null), 2000);
     }
   };
 
+  // --- COLUMNAS TABLA ---
   const columns = [
-    {
-      name: 'Archivo',
-      selector: row => row.shortName,
-      sortable: true,
-      grow: 2,
-      cell: row => (
-        <span onClick={() => handleDownload(row.name)} className="file-link">
-          {row.shortName}
-        </span>
-      ),
-    },
-    {
-      name: 'Tamaño (MB)',
-      selector: row => parseFloat(row.sizeMB),
-      sortable: true,
-      width: '130px'
-    },
-    {
-      name: 'Fecha',
-      selector: row => row.lastModified,
-      sortable: true,
-      width: '200px',
-      format: row => new Date(row.lastModified).toLocaleString(),
-    },
-    {
-      name: 'Acciones',
-      width: '120px',
-      cell: row => (
-        <div className="action-buttons">
-          <button className="icon-btn download" onClick={() => handleDownload(row.name)} title="Descargar">
-            <Download size={20} />
-          </button>
-          <button className="icon-btn link" onClick={() => handleCopyLink(row.name)} title="Copiar enlace">
-            {copiedKey === row.name ? <Check size={20} color="#28a745" /> : <LinkIcon size={20} />}
-          </button>
-        </div>
-      ),
-    },
+    { name: 'Archivo', selector: row => row.shortName, sortable: true, grow: 2, cell: row => (
+      <span onClick={() => handleDownload(row.name)} className="file-link">{row.shortName}</span>
+    )},
+    { name: 'Tamaño (MB)', selector: row => parseFloat(row.sizeMB), sortable: true, width: '130px' },
+    { name: 'Fecha', selector: row => row.lastModified, sortable: true, width: '200px', format: row => new Date(row.lastModified).toLocaleString() },
+    { name: 'Acciones', width: '120px', cell: row => (
+      <div className="action-buttons">
+        <button className="icon-btn download" onClick={() => handleDownload(row.name)}><Download size={20} /></button>
+        <button className="icon-btn link" onClick={() => handleCopyLink(row.name)}>
+          {copiedKey === row.name ? <Check size={20} color="#28a745" /> : <LinkIcon size={20} />}
+        </button>
+      </div>
+    )},
   ];
 
+  // --- ESTILOS SELECT ---
   const customSelectStyles = {
-    control: (base) => ({
-      ...base,
-      backgroundColor: darkMode ? '#374151' : '#fff',
-      borderColor: darkMode ? '#4b5563' : '#e5e7eb',
-      color: darkMode ? '#fff' : '#333'
-    }),
-    menu: (base) => ({
-      ...base,
-      backgroundColor: darkMode ? '#374151' : '#fff',
-      zIndex: 9999
-    }),
-    option: (base, { isFocused }) => ({
-      ...base,
-      backgroundColor: isFocused ? (darkMode ? '#4b5563' : '#f3f4f6') : 'transparent',
-      color: darkMode ? '#fff' : '#333'
-    }),
-    singleValue: (base) => ({
-      ...base,
-      color: darkMode ? '#fff' : '#333'
-    }),
-    input: (base) => ({ ...base, color: darkMode ? '#fff' : '#333' }),
-    placeholder: (base) => ({ ...base, color: darkMode ? '#9ca3af' : '#6b7280' })
+    control: (base) => ({ ...base, backgroundColor: darkMode ? '#1f2937' : '#fff', color: darkMode ? '#fff' : '#333', borderColor: darkMode ? '#374151' : '#e5e7eb' }),
+    menu: (base) => ({ ...base, backgroundColor: darkMode ? '#1f2937' : '#fff', zIndex: 9999 }),
+    option: (base, { isFocused }) => ({ ...base, backgroundColor: isFocused ? (darkMode ? '#374151' : '#f3f4f6') : 'transparent', color: darkMode ? '#fff' : '#333' }),
+    singleValue: (base) => ({ ...base, color: darkMode ? '#fff' : '#333' }),
   };
 
   return (
     <div className={`app-wrapper ${darkMode ? 'dark' : ''}`}>
-      {/* NAVBAR AGREGADO */}
+      
+      {/* 1. MODAL DE BLOQUEO (Solo si no está autenticado) */}
+      {!isAuthenticated && (
+        <div className="modal-overlay">
+          <div className="login-card">
+            <h2>Acceso Restringido</h2>
+            <p>Inicie sesión para gestionar los backups.</p>
+            <input 
+              type="text" 
+              placeholder="Usuario" 
+              onChange={(e) => setCredentials({...credentials, username: e.target.value})}
+            />
+            <input 
+              type="password" 
+              placeholder="Contraseña" 
+              onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+            />
+            <button onClick={handleLogin}>Entrar</button>
+          </div>
+        </div>
+      )}
+
+      {/* 2. NAVBAR */}
       <nav className="navbar">
         <div className="nav-container">
           <span className="nav-title">SISTEMA DE BACKUPS GADMP</span>
@@ -153,6 +171,7 @@ function App() {
         </div>
       </nav>
 
+      {/* 3. CONTENIDO PRINCIPAL */}
       <div className="container">
         <div className="selector-container">
           <label className="label-select">Seleccione una Carpeta:</label>
