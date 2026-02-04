@@ -144,53 +144,49 @@ function App() {
     option: (base, { isFocused }) => ({ ...base, backgroundColor: isFocused ? (darkMode ? '#374151' : '#f3f4f6') : 'transparent', color: darkMode ? '#fff' : '#333' }),
     singleValue: (base) => ({ ...base, color: darkMode ? '#fff' : '#333' }),
   };
-
-  return (
-    <div className={`app-wrapper ${darkMode ? 'dark' : ''}`}>
-      
-      {/* 1. MODAL DE BLOQUEO (Solo si no está autenticado) */}
-      {!isAuthenticated && (
-        <div className="modal-overlay">
-          <div className="login-card">
-            <h2>Acceso Restringido</h2>
-            <p>Inicie sesión para gestionar los backups.</p>
-            <input 
-              type="text" 
-              placeholder="Usuario" 
-              onChange={(e) => setCredentials({...credentials, username: e.target.value})}
-            />
-            <input 
-              type="password" 
-              placeholder="Contraseña" 
-              onChange={(e) => setCredentials({...credentials, password: e.target.value})}
-            />
-            <button onClick={handleLogin}>Entrar</button>
-          </div>
-        </div>
-      )}
-
-      {/* 2. NAVBAR */}
-<nav className="navbar">
-  <div className="nav-container">
-    <span className="nav-title">SISTEMA DE BACKUPS GADMP</span>
+return (
+  <div className={`app-wrapper ${darkMode ? 'dark' : ''}`}>
     
-    <div className="nav-actions">
-      <button className="theme-toggle-btn" onClick={() => setDarkMode(!darkMode)}>
-        {darkMode ? <Sun size={20} color="#fbbf24" /> : <Moon size={20} color="#4b5563" />}
-        {/* <span>{darkMode ? '' : ''}</span> */}
-      </button>
+    {/* 1. NAVBAR (Fuera del blur para que siempre esté nítido) */}
+    <nav className="navbar">
+      <div className="nav-container">
+        <span className="nav-title">SISTEMA DE BACKUPS GADMP</span>
+        <div className="nav-actions">
+          <button className="theme-toggle-btn" onClick={() => setDarkMode(!darkMode)}>
+            {darkMode ? <Sun size={20} color="#fbbf24" /> : <Moon size={20} color="#4b5563" />}
+          </button>
+          {isAuthenticated && (
+            <button className="logout-btn" onClick={handleLogout}>
+              Cerrar Sesión
+            </button>
+          )}
+        </div>
+      </div>
+    </nav>
 
-      {/* Solo mostramos cerrar sesión si está autenticado */}
-      {isAuthenticated && (
-        <button className="logout-btn" onClick={handleLogout}>
-          Cerrar Sesión
-        </button>
-      )}
-    </div>
-  </div>
-</nav>
+    {/* 2. MODAL DE BLOQUEO */}
+    {!isAuthenticated && (
+      <div className="modal-overlay">
+        <div className="login-card">
+          <h2>Acceso Restringido</h2>
+          <p>Inicie sesión para gestionar los backups.</p>
+          <input 
+            type="text" 
+            placeholder="Usuario" 
+            onChange={(e) => setCredentials({...credentials, username: e.target.value})}
+          />
+          <input 
+            type="password" 
+            placeholder="Contraseña" 
+            onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+          />
+          <button className="login-btn" onClick={handleLogin}>Entrar</button>
+        </div>
+      </div>
+    )}
 
-      {/* 3. CONTENIDO PRINCIPAL */}
+    {/* 3. CONTENIDO CON BLUR CONDICIONAL */}
+    <div className={`main-content ${!isAuthenticated ? 'blur-active' : ''}`}>
       <div className="container">
         <div className="selector-container">
           <label className="label-select">Seleccione una Carpeta:</label>
@@ -219,7 +215,8 @@ function App() {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 export default App;

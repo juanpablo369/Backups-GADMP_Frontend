@@ -119,39 +119,92 @@ html, body, #root {
   min-height: 100vh;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
-
-/* 3. NAVBAR FIJA (Sin espacios) */
+/* --- NAVEGACIÓN --- */
 .navbar {
-  width: 100%;
-  height: 64px;
-  background-color: var(--bg-card);
-  border-bottom: 1px solid var(--border);
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
+  z-index: 2000; /* Siempre por encima de todo */
+  background: var(--bg-navbar); /* Usa tu color actual */
+  height: 60px;
   display: flex;
   align-items: center;
-  z-index: 2000;
-  transition: background-color 0.3s;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
 }
 
-/* El contenedor principal del Navbar */
 .nav-container {
   display: flex;
-  justify-content: space-between; /* Título a la izquierda, botones a la derecha */
+  justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 1200px; /* O el ancho que prefieras */
-  margin: 0 auto;
   padding: 0 20px;
 }
 
-/* El grupo de botones (Switch + Logout) */
 .nav-actions {
-  display: flex;       /* Pone los hijos en fila */
-  flex-direction: row; /* Asegura que sea horizontal */
+  display: flex;
   align-items: center;
-  gap: 15px;           /* Espacio exacto entre botones */
+  gap: 15px; /* Evita que los botones se monten */
+}
+
+/* --- EFECTO BLUR --- */
+.main-content {
+  transition: filter 0.3s ease;
+}
+
+.blur-active {
+  filter: blur(10px);
+  pointer-events: none; /* Bloquea clics en la tabla */
+  user-select: none;
+}
+
+/* --- MODAL --- */
+.modal-overlay {
+  position: fixed;
+  top: 60px; /* Empieza debajo del navbar */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1); /* Fondo sutil para que luzca el blur */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.login-card {
+  background: var(--bg-card); /* Ajusta al color de tu tema */
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  width: 320px;
+}
+
+.login-card input {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.logout-btn {
+  background: #ef4444;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
 }
 
 /* Evitar que los botones se achiquen o se monten */
@@ -192,8 +245,7 @@ html, body, #root {
 .app-wrapper {
   background-color: var(--bg-body);
   min-height: 100vh;
-  width: 100%;
-  padding-top: 64px; /* Espacio para que el contenido no quede bajo la navbar */
+  width: 100%; 
   display: flex;
   flex-direction: column;
   transition: background-color 0.3s;
