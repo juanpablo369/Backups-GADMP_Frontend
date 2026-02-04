@@ -135,12 +135,31 @@ html, body, #root {
   transition: background-color 0.3s;
 }
 
+/* El contenedor principal del Navbar */
 .nav-container {
-  width: 100%;
-  padding: 0 40px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Título a la izquierda, botones a la derecha */
   align-items: center;
+  width: 100%;
+  max-width: 1200px; /* O el ancho que prefieras */
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* El grupo de botones (Switch + Logout) */
+.nav-actions {
+  display: flex;       /* Pone los hijos en fila */
+  flex-direction: row; /* Asegura que sea horizontal */
+  align-items: center;
+  gap: 15px;           /* Espacio exacto entre botones */
+}
+
+/* Evitar que los botones se achiquen o se monten */
+.theme-toggle-btn, .logout-btn {
+  display: flex;
+  align-items: center;
+  white-space: nowrap; /* Evita que el texto se parta en dos líneas */
+  flex-shrink: 0;      /* Impide que el botón se aplaste */
 }
 
 .nav-title {
