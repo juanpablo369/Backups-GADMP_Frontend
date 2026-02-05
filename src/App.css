@@ -61,6 +61,105 @@
 
 
 
+/* Contenedor de la navegación */
+.breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  padding: 5px 0;
+}
+
+/* Botón discreto (solo flecha) */
+.back-icon-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s;
+  color: #3b82f6; /* Color azul para destacar que es clicable */
+}
+
+.back-icon-btn:hover:not(:disabled) {
+  background-color: rgba(59, 130, 246, 0.1); /* Fondo suave al pasar el mouse */
+}
+
+.back-icon-btn:disabled {
+  color: #9ca3af; /* Gris si no hay a donde volver */
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* Texto de la ruta */
+.current-path {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+/* Ajuste para Modo Oscuro */
+.dark .current-path {
+  color: #d1d5db;
+}
+
+.dark .back-icon-btn {
+  color: #60a5fa;
+}
+
+.dark .back-icon-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.breadcrumb-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.bc-folder {
+  color: #6b7280; /* Gris para carpetas */
+  margin-right: 4px;
+}
+
+.bc-separator {
+  margin: 0 4px;
+  color: #9ca3af;
+  font-weight: bold;
+}
+
+.bc-file {
+  color: #2563eb; /* Azul para el archivo final */
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dark .bc-folder {
+  color: #9ca3af;
+}
+
+.dark .bc-file {
+  color: #60a5fa;
+}
+
+.file-link:hover {
+  text-decoration: underline;
+}
+
+
+
+
+
+
+
+
+
+
+
 /* Efecto de desenfoque solo al cuerpo */
 .blur-effect {
   filter: blur(8px);
@@ -385,6 +484,61 @@ html, body, #root {
   text-align: center;
   padding: 80px 20px;
   color: #94a3b8;
+}
+
+
+
+ 
+.search-container {
+  display: flex;
+  justify-content: flex-start; /* Lo alinea a la derecha */
+  margin-bottom: 10px;
+  margin-top: 10px; 
+}
+/* --- CONTENEDOR DE BÚSQUEDA --- */
+.search-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+}
+
+/* --- ESTILO BASE (LIGHT MODE) --- */
+.search-input {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db; /* Gris suave */
+  background-color: #ffffff; /* Fondo blanco */
+  color: #1f2937; /* Texto oscuro */
+  width: 280px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+/* --- ESTILO DARK MODE --- */
+.dark .search-input {
+  background-color: #1f2937; /* Gris muy oscuro */
+  border-color: #374151; /* Borde sutil */
+  color: #f3f4f6; /* Texto casi blanco */
+}
+
+.dark .search-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+.dark .search-input::placeholder {
+  color: #6b7280;
 }
 
 /* 7. DATATABLE OVERRIDES */
